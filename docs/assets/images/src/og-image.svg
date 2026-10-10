@@ -54,7 +54,7 @@
       <path d="M -3 23 L -5 38 L 0 33 L 5 38 L 3 23" fill="#0f766e"/>
     </g>
     <text x="95" y="162" text-anchor="middle" font-family="Verdana, 'DejaVu Sans', sans-serif" font-size="20" font-weight="700" fill="#0b1c24">Private CA</text>
-    <text x="95" y="186" text-anchor="middle" font-family="Verdana, 'DejaVu Sans', sans-serif" font-size="15" fill="#3d5560">nginx &#183; intranet PKI</text>
+    <text x="95" y="186" text-anchor="middle" font-family="Verdana, 'DejaVu Sans', sans-serif" font-size="15" fill="#3d5560">ALB &#183; intranet PKI</text>
   </g>
 
   <!-- connector between the two cards -->
