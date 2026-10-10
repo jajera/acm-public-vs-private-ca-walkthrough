@@ -11,7 +11,7 @@ on nginx via Secrets Manager instead. Public and private paths are complementary
 | Private CA (default `alb_acm`) | `app.internal.johna.kiwi` | Internal ALB + ACM private cert; managed client passes |
 | Private CA (optional `nginx_export`) | same hostname | nginx HTTPS from Secrets Manager + State Manager |
 
-### Live leaf evidence (same account)
+## Live leaf evidence (same account)
 
 Public ACM (laptop → public ALB):
 
