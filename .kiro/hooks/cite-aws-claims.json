@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Cite AWS claims",
+      "description": "After the agent edits a docs page, remind it to ground AWS claims in the source lock or AWS docs.",
+      "trigger": "PostFileSave",
+      "matcher": "docs/.*\\.md$",
+      "action": {
+        "type": "agent",
+        "prompt": "You just edited a docs page. Check it against .kiro/steering/aws-source-lock.md: every ACM / Private CA / pricing / renewal behavioural claim must appear in the verified-facts list or be backed by a docs.aws.amazon.com or aws.amazon.com pricing link. Mark unverified lab evidence explicitly. If a claim cannot be sourced, use the aws-docs MCP or remove it. Keep tone direct — no hedging lectures."
+      }
+    }
+  ]
+}

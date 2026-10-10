@@ -1,0 +1,82 @@
+{%- comment -%}
+  Split-horizon DNS for public ACM on an internal name — conceptual only (not built in this lab).
+  Icons: https://aws-icons.johna.kiwi/ under AWS Trademark Guidelines.
+{%- endcomment -%}
+{%- assign icons = "https://aws-icons.johna.kiwi/icons" -%}
+<figure class="flow" aria-labelledby="split-horizon-caption">
+  <p class="flow-kicker">Same zone name · public + private hosted zones · <strong>not built in this lab</strong></p>
+
+  <div class="flow-track flow-track--public">
+    <span class="flow-track__tag">Public zone · internet DNS · ACM validation only</span>
+    <div class="flow-row">
+      <div class="flow-node">
+        <picture>
+          <source srcset="{{ icons }}/resource/general/Res_Internet_48_Light.svg" media="(prefers-color-scheme: dark)">
+          <img src="{{ icons }}/resource/general/Res_Internet_48_Dark.svg" alt="" width="40" height="40" loading="lazy">
+        </picture>
+        <span class="flow-node__name">ACM validators</span>
+        <span class="flow-node__sub">public DNS query</span>
+      </div>
+      <span class="flow-hop" data-label="lookup">&rarr;</span>
+      <div class="flow-node flow-node--accent">
+        <img src="{{ icons }}/service/networking/Arch_Amazon-Route-53_64.svg" alt="" width="40" height="40" loading="lazy">
+        <span class="flow-node__name">Public hosted zone</span>
+        <span class="flow-node__sub">example.internal</span>
+      </div>
+      <span class="flow-hop" data-label="CNAME">&rarr;</span>
+      <div class="flow-node">
+        <img src="{{ icons }}/service/security/Arch_AWS-Certificate-Manager_64.svg" alt="" width="40" height="40" loading="lazy">
+        <span class="flow-node__name">_token.x.example.internal</span>
+        <span class="flow-node__sub">→ acm-validations.aws<br>no public A for x</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-track flow-track--private">
+    <span class="flow-track__tag">Private zone · VPC DNS · service resolution</span>
+    <div class="flow-row">
+      <div class="flow-node">
+        <img src="{{ icons }}/resource/compute/Res_Amazon-EC2_Instance_48.svg" alt="" width="40" height="40" loading="lazy">
+        <span class="flow-node__name">VPC client</span>
+        <span class="flow-node__sub">resolves x</span>
+      </div>
+      <span class="flow-hop" data-label="A / alias">&rarr;</span>
+      <div class="flow-node">
+        <img src="{{ icons }}/service/networking/Arch_Amazon-Route-53_64.svg" alt="" width="40" height="40" loading="lazy">
+        <span class="flow-node__name">Private hosted zone</span>
+        <span class="flow-node__sub">example.internal</span>
+      </div>
+      <span class="flow-hop" data-label="HTTPS">&rarr;</span>
+      <div class="flow-node flow-node--accent">
+        <img src="{{ icons }}/service/security/Arch_AWS-Certificate-Manager_64.svg" alt="" width="40" height="40" loading="lazy">
+        <img src="{{ icons }}/resource/networking/Res_Elastic-Load-Balancing_Application-Load-Balancer_48.svg" alt="" width="40" height="40" loading="lazy">
+        <span class="flow-node__name">internal ALB</span>
+        <span class="flow-node__sub">ACM <strong>public</strong> cert · x.example.internal</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-track flow-track--trust">
+    <span class="flow-track__tag">Client trust · Amazon public roots (no CA PEM install)</span>
+    <div class="flow-row">
+      <div class="flow-node flow-node--ok">
+        <img src="{{ icons }}/resource/compute/Res_Amazon-EC2_Instance_48.svg" alt="" width="36" height="36" loading="lazy">
+        <span class="flow-node__name">Client</span>
+        <span class="flow-node__sub">default OS / browser trust</span>
+      </div>
+      <span class="flow-hop" data-label="vs lab">&rarr;</span>
+      <div class="flow-node">
+        <img src="{{ icons }}/service/security/Arch_AWS-Private-Certificate-Authority_64.svg" alt="" width="36" height="36" loading="lazy">
+        <span class="flow-node__name">This lab’s private path</span>
+        <span class="flow-node__sub">Private CA + S3/SSM CA install</span>
+      </div>
+    </div>
+    <p class="flow-aside">ACM looks up validation CNAMEs in a <strong>publicly hosted zone</strong> only. A CNAME that exists solely in the private zone never issues a public ACM certificate.</p>
+  </div>
+
+  <figcaption id="split-horizon-caption">
+    Split-view DNS (Route&nbsp;53): public zone proves domain control to ACM;
+    private zone routes <code>x.example.internal</code> inside the VPC.
+    Conceptual pattern — not a Terraform stage in this walkthrough.
+  </figcaption>
+</figure>

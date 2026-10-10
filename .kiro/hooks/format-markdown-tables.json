@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Format markdown tables",
+      "description": "Repairs GFM tables after the agent saves Markdown.",
+      "trigger": "PostFileSave",
+      "matcher": "\\.(md|markdown)$",
+      "action": {
+        "type": "command",
+        "command": "python3 .kiro/hooks/format-md-tables.py --dirty"
+      },
+      "timeout": 20
+    }
+  ]
+}

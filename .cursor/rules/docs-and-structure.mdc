@@ -1,0 +1,20 @@
+---
+description: Docs voice, Jekyll layout, and Terraform authoring
+globs: docs/**/*.md,README.md,terraform/**/*.tf
+alwaysApply: false
+---
+
+# Docs and structure
+
+- **Jekyll + just-the-docs** under `docs/` (not Starlight). Use `title` / `nav_order`.
+- **README.md** = operator how-to-run. **docs/walkthrough.md** = TF/CLI depth.
+- **docs/cost.md** = pricing, wildcards, renewal — cite AWS pricing/docs.
+- GFM pipe tables only; hook `.kiro/hooks/format-md-tables.py` repairs separators.
+- Imperative steps; public ALB path vs private path (`alb_acm` default;
+  optional `nginx_export`) called out explicitly.
+- Never put real AWS account IDs or live private keys in docs — placeholders only.
+- Terraform: staged roots `terraform/01-network` … `04-trust`; `terraform fmt` before commit.
+- Do not add apply wrappers agents would run; prove scripts under `scripts/` are OK.
+
+See `.kiro/steering/docs-style.md`, `structure.md`, `terraform-stack.md`,
+`markdown-tables.md`.

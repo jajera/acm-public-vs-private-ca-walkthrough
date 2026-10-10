@@ -1,0 +1,95 @@
+{%- comment -%}
+  Landing architecture flow — HTML/CSS node diagram (not a hand-drawn SVG).
+  Real AWS service icons from https://aws-icons.johna.kiwi/ under AWS Trademark Guidelines.
+  Styles live in _sass/custom/custom.scss under the `.flow-*` classes.
+{%- endcomment -%}
+{%- assign icons = "https://aws-icons.johna.kiwi/icons" -%}
+<figure class="flow" aria-labelledby="flow-caption">
+  <div class="flow-track flow-track--public">
+    <span class="flow-track__tag">Public · browser trust</span>
+    <div class="flow-row">
+      <div class="flow-node">
+        <picture>
+          <source srcset="{{ icons }}/resource/general/Res_Internet_48_Light.svg" media="(prefers-color-scheme: dark)">
+          <img src="{{ icons }}/resource/general/Res_Internet_48_Dark.svg" alt="" width="40" height="40" loading="lazy">
+        </picture>
+        <span class="flow-node__name">Internet</span>
+        <span class="flow-node__sub">any browser</span>
+      </div>
+      <span class="flow-hop" data-label="HTTPS">&rarr;</span>
+      <div class="flow-node flow-node--accent">
+        <img src="{{ icons }}/service/security/Arch_AWS-Certificate-Manager_64.svg" alt="" width="40" height="40" loading="lazy">
+        <img src="{{ icons }}/resource/networking/Res_Elastic-Load-Balancing_Application-Load-Balancer_48.svg" alt="" width="40" height="40" loading="lazy">
+        <span class="flow-node__name">ALB + ACM public</span>
+        <span class="flow-node__sub">public subnet · demo.johna.kiwi</span>
+      </div>
+      <span class="flow-hop" data-label="HTTP">&rarr;</span>
+      <div class="flow-node">
+        <img src="{{ icons }}/resource/compute/Res_Amazon-EC2_Instance_48.svg" alt="" width="40" height="40" loading="lazy">
+        <span class="flow-node__name">public-web</span>
+        <span class="flow-node__sub">private subnet · nginx :80</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-track flow-track--private">
+    <span class="flow-track__tag">Private · you operate trust (default alb_acm)</span>
+    <div class="flow-row">
+      <div class="flow-node flow-node--accent">
+        <img src="{{ icons }}/service/security/Arch_AWS-Private-Certificate-Authority_64.svg" alt="" width="40" height="40" loading="lazy">
+        <span class="flow-node__name">Private CA</span>
+        <span class="flow-node__sub">ROOT</span>
+      </div>
+      <span class="flow-hop" data-label="ACM private">&rarr;</span>
+      <div class="flow-node flow-node--accent">
+        <img src="{{ icons }}/service/security/Arch_AWS-Certificate-Manager_64.svg" alt="" width="40" height="40" loading="lazy">
+        <img src="{{ icons }}/resource/networking/Res_Elastic-Load-Balancing_Application-Load-Balancer_48.svg" alt="" width="40" height="40" loading="lazy">
+        <span class="flow-node__name">internal ALB + ACM</span>
+        <span class="flow-node__sub">private subnets · app.internal.johna.kiwi</span>
+      </div>
+      <span class="flow-hop" data-label="HTTP">&rarr;</span>
+      <div class="flow-node">
+        <img src="{{ icons }}/resource/compute/Res_Amazon-EC2_Instance_48.svg" alt="" width="40" height="40" loading="lazy">
+        <span class="flow-node__name">private-web</span>
+        <span class="flow-node__sub">private subnet · nginx :80</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-track flow-track--trust">
+    <span class="flow-track__tag">Trust distribution · CA PEM only (never the CA key)</span>
+    <div class="flow-row">
+      <div class="flow-node">
+        <img src="{{ icons }}/service/security/Arch_AWS-Private-Certificate-Authority_64.svg" alt="" width="36" height="36" loading="lazy">
+        <span class="flow-node__name">CA PEM</span>
+      </div>
+      <span class="flow-hop" data-label="publish">&rarr;</span>
+      <div class="flow-node">
+        <img src="{{ icons }}/resource/storage/Res_Amazon-Simple-Storage-Service_Bucket_48.svg" alt="" width="36" height="36" loading="lazy">
+        <span class="flow-node__name">S3 bucket</span>
+      </div>
+      <span class="flow-hop" data-label="State Manager">&rarr;</span>
+      <div class="flow-node">
+        <img src="{{ icons }}/resource/management/Res_AWS-Systems-Manager_State-Manager_48.svg" alt="" width="36" height="36" loading="lazy">
+        <span class="flow-node__name">SSM</span>
+      </div>
+      <span class="flow-hop" data-label="update-ca-trust">&rarr;</span>
+      <div class="flow-node flow-node--ok">
+        <img src="{{ icons }}/resource/compute/Res_Amazon-EC2_Instance_48.svg" alt="" width="36" height="36" loading="lazy">
+        <span class="flow-node__name">client-managed</span>
+        <span class="flow-node__sub">TrustCA=intranet · trusts leaf</span>
+      </div>
+      <div class="flow-node flow-node--fail">
+        <img src="{{ icons }}/resource/compute/Res_Amazon-EC2_Instance_48.svg" alt="" width="36" height="36" loading="lazy">
+        <span class="flow-node__name">client-unmanaged</span>
+        <span class="flow-node__sub">no CA · TLS fails (expected)</span>
+      </div>
+    </div>
+  </div>
+
+  <figcaption id="flow-caption">
+    ALB in public subnets; internal ALB, app, and clients in private subnets (NAT egress).
+    Public path is trusted out of the box. Private path works only after the CA PEM
+    lands in the client trust store via S3 and SSM; the unmanaged client fails on purpose.
+  </figcaption>
+</figure>

@@ -1,0 +1,15 @@
+---
+description: Ground ACM / Private CA / pricing claims in AWS docs
+alwaysApply: true
+---
+
+# AWS source lock
+
+Do not invent ACM renewal rules, Private CA pricing, or CLI flags from memory.
+
+1. Prefer facts in `.kiro/steering/aws-source-lock.md`.
+2. Else link docs.aws.amazon.com or aws.amazon.com pricing (use aws-docs MCP).
+3. Mark unverified lab evidence explicitly until an evidence pass.
+
+When editing `docs/**` (especially `cost.md`), re-check claims before finishing.
+Keep tone direct — no hedging lectures.
