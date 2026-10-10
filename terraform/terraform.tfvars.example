@@ -1,0 +1,8 @@
+aws_region       = "ap-southeast-2"
+# Public hosted zone in the same AWS account as this lab (validation + ALB alias).
+route53_zone_id  = "ZXXXXXXXXEXAMPLE"
+public_hostname  = "demo.johna.kiwi"
+private_hostname = "app.internal.johna.kiwi"
+# alb_acm (default): ACM private cert on internal ALB. nginx_export: leaf on nginx via Secrets Manager.
+private_tls_mode = "alb_acm"
+name_prefix      = "acm-lab"

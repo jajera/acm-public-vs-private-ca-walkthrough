@@ -1,0 +1,112 @@
+{%- comment -%}
+  Four Terraform stages, drawn as resource cards with dependency edges.
+  Not a straight line: stage 1 is the base; 2 and 3 branch off it; 4 follows 3.
+  Uses the shared flow-* vocabulary (flow-track / flow-row / flow-node / flow-hop
+  / flow-aside). Icons: https://aws-icons.johna.kiwi/ under AWS Trademark Guidelines.
+{%- endcomment -%}
+{%- assign icons = "https://aws-icons.johna.kiwi/icons" -%}
+<figure class="flow" aria-labelledby="stage-flow-caption">
+  <p class="flow-kicker">Four Terraform roots · separate state · apply 1 → 4, destroy 4 → 1</p>
+
+  {%- comment -%} Base stage. {%- endcomment -%}
+  <div class="flow-track">
+    <span class="flow-track__tag">Stage 1 · base · <code>terraform/01-network</code></span>
+    <div class="flow-row">
+      <div class="flow-node flow-node--accent">
+        <span class="flow-node__icons">
+          <img src="{{ icons }}/service/networking/Arch_Amazon-Virtual-Private-Cloud_64.svg" alt="Amazon VPC" width="38" height="38" loading="lazy">
+          <img src="{{ icons }}/service/management/Arch_AWS-Systems-Manager_64.svg" alt="AWS Systems Manager" width="38" height="38" loading="lazy">
+        </span>
+        <span class="flow-node__name">Network</span>
+        <span class="flow-node__sub">VPC · public/private · IGW · NAT · SGs · SSM</span>
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%} Two stages branch off the network base. {%- endcomment -%}
+  <div class="flow-track flow-track--public">
+    <span class="flow-track__tag">Stage 2 · depends on 1 · <code>terraform/02-public</code> · public trust</span>
+    <div class="flow-row">
+      <div class="flow-node flow-node--accent">
+        <span class="flow-node__icons">
+          <img src="{{ icons }}/service/security/Arch_AWS-Certificate-Manager_64.svg" alt="AWS Certificate Manager" width="36" height="36" loading="lazy">
+          <img src="{{ icons }}/resource/networking/Res_Elastic-Load-Balancing_Application-Load-Balancer_48.svg" alt="Application Load Balancer" width="36" height="36" loading="lazy">
+          <img src="{{ icons }}/resource/compute/Res_Amazon-EC2_Instance_48.svg" alt="EC2 public-web" width="36" height="36" loading="lazy">
+          <img src="{{ icons }}/service/networking/Arch_Amazon-Route-53_64.svg" alt="Route 53" width="36" height="36" loading="lazy">
+        </span>
+        <span class="flow-node__name">Public ACM path</span>
+        <span class="flow-node__sub">ACM cert · ALB :443 · public-web · DNS alias</span>
+      </div>
+      <span class="flow-hop" data-label="prove-public.sh">&rarr;</span>
+      <div class="flow-node flow-node--ok">
+        <span class="flow-node__name">Browser trust</span>
+        <span class="flow-node__sub">demo.johna.kiwi · HTTPS 200</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-track flow-track--private">
+    <span class="flow-track__tag">Stage 3 · depends on 1 · <code>terraform/03-private</code> · bills while the CA exists</span>
+    <div class="flow-row">
+      <div class="flow-node flow-node--accent">
+        <span class="flow-node__icons">
+          <img src="{{ icons }}/service/security/Arch_AWS-Private-Certificate-Authority_64.svg" alt="AWS Private Certificate Authority" width="36" height="36" loading="lazy">
+          <img src="{{ icons }}/service/security/Arch_AWS-Certificate-Manager_64.svg" alt="AWS Certificate Manager" width="36" height="36" loading="lazy">
+          <img src="{{ icons }}/resource/networking/Res_Elastic-Load-Balancing_Application-Load-Balancer_48.svg" alt="Internal Application Load Balancer" width="36" height="36" loading="lazy">
+          <img src="{{ icons }}/resource/compute/Res_Amazon-EC2_Instance_48.svg" alt="EC2 private-web" width="36" height="36" loading="lazy">
+        </span>
+        <span class="flow-node__name">Private CA path</span>
+        <span class="flow-node__sub">Private CA ROOT · ACM private on internal ALB · HTTP private-web (default <code>alb_acm</code>)</span>
+      </div>
+      <span class="flow-hop" data-label="prove-private-tls.sh">&rarr;</span>
+      <div class="flow-node">
+        <span class="flow-node__name">Leaf inspect</span>
+        <span class="flow-node__sub">SSM + OpenSSL · issuer = lab CA · not trusted yet</span>
+      </div>
+    </div>
+  </div>
+
+  {%- comment -%} Stage 4 follows stage 3's output (the CA PEM). {%- endcomment -%}
+  <div class="flow-track flow-track--trust">
+    <span class="flow-track__tag">Stage 4 · depends on 1 + 3 · <code>terraform/04-trust</code> · the proof</span>
+    <div class="flow-row">
+      <div class="flow-node flow-node--accent">
+        <span class="flow-node__icons">
+          <img src="{{ icons }}/resource/storage/Res_Amazon-Simple-Storage-Service_Bucket_48.svg" alt="Amazon S3" width="36" height="36" loading="lazy">
+          <img src="{{ icons }}/resource/management/Res_AWS-Systems-Manager_State-Manager_48.svg" alt="AWS Systems Manager State Manager" width="36" height="36" loading="lazy">
+        </span>
+        <span class="flow-node__name">Trust distribution</span>
+        <span class="flow-node__sub">CA PEM in S3 · SSM association · TrustCA=intranet</span>
+      </div>
+      <span class="flow-hop" data-label="install">&rarr;</span>
+      <div class="flow-pair">
+        <div class="flow-node flow-node--ok">
+          <img src="{{ icons }}/resource/compute/Res_Amazon-EC2_Instance_48.svg" alt="client-managed" width="36" height="36" loading="lazy">
+          <span class="flow-node__name">client-managed</span>
+          <span class="flow-node__sub">TLS OK, no --cacert</span>
+        </div>
+        <div class="flow-node flow-node--fail">
+          <img src="{{ icons }}/resource/compute/Res_Amazon-EC2_Instance_48.svg" alt="client-unmanaged" width="36" height="36" loading="lazy">
+          <span class="flow-node__name">client-unmanaged</span>
+          <span class="flow-node__sub">TLS fail (expected)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="flow-aside">
+    Dependencies via <code>terraform_remote_state</code>: <strong>1</strong> is the base;
+    <strong>2</strong> and <strong>3</strong> both read stage 1; <strong>4</strong> reads
+    the CA PEM from stage 3. Apply top to bottom; destroy bottom to top
+    (<code>04</code> → <code>03</code> → <code>02</code> → <code>01</code>) so the billable
+    Private CA in stage 3 is deleted before you tear down the network.
+    Optional <code>nginx_export</code> swaps the internal ALB for Secrets Manager → nginx
+    on <code>private-web</code>.
+  </p>
+
+  <figcaption id="stage-flow-caption">
+    Each stage is one Terraform root with its own state and its own verify step —
+    network first, then the public and private paths off it, then trust distribution
+    so managed clients trust the private path without <code>--cacert</code>.
+  </figcaption>
+</figure>

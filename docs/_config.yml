@@ -1,0 +1,86 @@
+title: ACM and Private CA
+description: >-
+  Complementary public and private TLS on AWS — ACM for internet trust,
+  Private CA for intranet PKI, with Linux CA trust distribution.
+
+ga_tracking: G-6GP64SX615
+
+theme: just-the-docs
+
+url: https://acm-public-vs-private-ca-walkthrough.johna.kiwi
+baseurl: ""
+
+permalink: pretty
+
+heading_anchors: true
+back_to_top: true
+back_to_top_text: "Back to top"
+
+# Grouped sidebar: expand the active section, collapse the rest.
+nav_sort: case_sensitive
+nav_fold: true
+
+aux_links:
+  GitHub: https://github.com/jajera/acm-public-vs-private-ca-walkthrough
+aux_links_new_tab: true
+
+color_scheme: conduit
+
+favicon_ico: "/assets/images/favicon.ico"
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      image: /assets/images/og-image.png
+
+twitter:
+  card: summary_large_image
+
+sass:
+  quiet_deps: true
+  silence_deprecations:
+    - import
+    - global-builtin
+    - color-functions
+
+search_enabled: true
+search:
+  heading_level: 3
+  previews: 3
+  preview_words_before: 5
+  preview_words_after: 10
+  tokenizer_separator: /[\s/]+/
+  rel_url: true
+  button: false
+
+callouts_level: loud
+callouts:
+  note:
+    title: Note
+    color: blue
+  tip:
+    title: Tip
+    color: purple
+  warning:
+    title: Warning
+    color: yellow
+  cost:
+    title: Cost
+    color: red
+  avoid:
+    title: Avoid
+    color: red
+
+footer_content: >-
+  Lab repository. Tear down the Private CA when finished — it bills monthly.
+
+plugins:
+  - jekyll-seo-tag
+  - jekyll-include-cache
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor/
+  - README.md

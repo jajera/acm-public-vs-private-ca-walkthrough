@@ -1,0 +1,73 @@
+{%- comment -%}
+  Trust vs leaf split — one source (Private CA), two materials with opposite rules.
+  Default leaf path is ACM → internal ALB; nginx_export is the optional Secrets Manager path.
+  Icons: https://aws-icons.johna.kiwi/ under AWS Trademark Guidelines.
+{%- endcomment -%}
+{%- assign icons = "https://aws-icons.johna.kiwi/icons" -%}
+<figure class="flow" aria-labelledby="trust-split-caption">
+  <p class="flow-kicker">One source · <strong>Private CA (ROOT)</strong> · two materials, two destinations</p>
+
+  <div class="flow-track flow-track--trust">
+    <span class="flow-track__tag">Trust path → clients · CA certificate (PEM) only</span>
+    <div class="flow-row">
+      <div class="flow-node flow-node--accent">
+        <img src="{{ icons }}/service/security/Arch_AWS-Private-Certificate-Authority_64.svg" alt="" width="38" height="38" loading="lazy">
+        <span class="flow-node__name">CA PEM</span>
+        <span class="flow-node__sub">public anchor</span>
+      </div>
+      <span class="flow-hop" data-label="publish">&rarr;</span>
+      <div class="flow-node">
+        <img src="{{ icons }}/resource/storage/Res_Amazon-Simple-Storage-Service_Bucket_48.svg" alt="" width="38" height="38" loading="lazy">
+        <span class="flow-node__name">S3 object</span>
+        <span class="flow-node__sub">trust/ca.pem</span>
+      </div>
+      <span class="flow-hop" data-label="State Manager">&rarr;</span>
+      <div class="flow-node">
+        <img src="{{ icons }}/resource/management/Res_AWS-Systems-Manager_State-Manager_48.svg" alt="" width="38" height="38" loading="lazy">
+        <span class="flow-node__name">SSM assoc</span>
+        <span class="flow-node__sub">tag TrustCA=intranet</span>
+      </div>
+      <span class="flow-hop" data-label="update-ca-trust">&rarr;</span>
+      <div class="flow-node flow-node--ok">
+        <img src="{{ icons }}/resource/compute/Res_Amazon-EC2_Instance_48.svg" alt="" width="38" height="38" loading="lazy">
+        <span class="flow-node__name">Managed client</span>
+        <span class="flow-node__sub">system trust store</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-track flow-track--private">
+    <span class="flow-track__tag">Leaf path → edge (default alb_acm) · ACM holds the key</span>
+    <div class="flow-row">
+      <div class="flow-node flow-node--accent">
+        <img src="{{ icons }}/service/security/Arch_AWS-Private-Certificate-Authority_64.svg" alt="" width="38" height="38" loading="lazy">
+        <span class="flow-node__name">Leaf</span>
+        <span class="flow-node__sub">via ACM private cert</span>
+      </div>
+      <span class="flow-hop" data-label="ACM">&rarr;</span>
+      <div class="flow-node">
+        <img src="{{ icons }}/service/security/Arch_AWS-Certificate-Manager_64.svg" alt="" width="38" height="38" loading="lazy">
+        <span class="flow-node__name">ACM</span>
+        <span class="flow-node__sub">private certificate</span>
+      </div>
+      <span class="flow-hop" data-label="attach ARN">&rarr;</span>
+      <div class="flow-node flow-node--accent">
+        <img src="{{ icons }}/resource/networking/Res_Elastic-Load-Balancing_Application-Load-Balancer_48.svg" alt="" width="38" height="38" loading="lazy">
+        <span class="flow-node__name">internal ALB</span>
+        <span class="flow-node__sub">HTTPS :443</span>
+      </div>
+      <span class="flow-hop" data-label="never">&rarr;</span>
+      <div class="flow-node flow-node--fail">
+        <img src="{{ icons }}/resource/compute/Res_Amazon-EC2_Instance_48.svg" alt="" width="38" height="38" loading="lazy">
+        <span class="flow-node__name">Clients</span>
+        <span class="flow-node__sub">never receive the leaf key</span>
+      </div>
+    </div>
+    <p class="flow-aside">Optional <code>nginx_export</code>: leaf + key → Secrets Manager → State Manager → nginx on <code>private-web</code>.</p>
+  </div>
+
+  <figcaption id="trust-split-caption">
+    One CA, two materials with opposite rules — the trust anchor fans out to the
+    fleet; the private key stays in ACM (default) or on the server (export mode).
+  </figcaption>
+</figure>

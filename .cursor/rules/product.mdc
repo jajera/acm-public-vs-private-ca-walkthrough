@@ -1,0 +1,28 @@
+---
+description: Product goals and non-goals for the ACM public vs Private CA walkthrough
+alwaysApply: true
+---
+
+# Product
+
+Walkthrough: **ACM public** + **AWS Private CA** as complementary TLS paths —
+internet ALB public HTTPS and internal ALB private HTTPS (ACM private cert),
+plus Linux CA trust (S3 + SSM). Optional `nginx_export` mode for Secrets Manager
+→ nginx. Jekyll just-the-docs under `docs/`. Terraform under `terraform/`.
+
+## Outcomes
+
+- ACM public on ALB for `demo.johna.kiwi` (DNS validation, browser trust).
+- Default: ACM private cert from Private CA on internal ALB for
+  `app.internal.johna.kiwi`. Optional `nginx_export`: leaf in Secrets Manager on nginx.
+- CA PEM on hardened S3; SSM State Manager installs trust on `TrustCA=intranet`.
+- Unmanaged client fails TLS; managed client succeeds without `--cacert`.
+- Cost / wildcard / renewal facts grounded in AWS pricing and docs.
+- Usage guide after teardown: when to use which.
+
+## Non-goals (v1)
+
+Windows/AD trust paths, CloudFront as primary public path, framing ACM vs
+Private CA as rivals, CI that applies Terraform, Astro/Starlight.
+
+Details: `.kiro/steering/product.md`, `AGENTS.md`.

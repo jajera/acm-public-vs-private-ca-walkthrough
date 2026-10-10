@@ -1,0 +1,59 @@
+{%- comment -%}
+  Trust distribution pipeline — an ordered sequence (issue → rotate). Uses the
+  shared flow-* system; nodes carry the step number, hops carry the transition.
+  Icons: https://aws-icons.johna.kiwi/ under AWS Trademark Guidelines.
+{%- endcomment -%}
+{%- assign icons = "https://aws-icons.johna.kiwi/icons" -%}
+<figure class="flow" aria-labelledby="trust-pipe-caption">
+  <div class="flow-track">
+    <span class="flow-track__tag">Pipeline · issue → publish → target → distribute → verify → rotate</span>
+    <div class="flow-row">
+      <div class="flow-node flow-node--accent">
+        <img src="{{ icons }}/service/security/Arch_AWS-Private-Certificate-Authority_64.svg" alt="" width="36" height="36" loading="lazy">
+        <span class="flow-node__name">1 · Issue</span>
+        <span class="flow-node__sub">Private CA anchor</span>
+      </div>
+      <span class="flow-hop">&rarr;</span>
+      <div class="flow-node">
+        <img src="{{ icons }}/resource/storage/Res_Amazon-Simple-Storage-Service_Bucket_48.svg" alt="" width="36" height="36" loading="lazy">
+        <span class="flow-node__name">2 · Publish</span>
+        <span class="flow-node__sub">PEM + script → S3</span>
+      </div>
+      <span class="flow-hop">&rarr;</span>
+      <div class="flow-node">
+        <img src="{{ icons }}/resource/management/Res_AWS-Systems-Manager_State-Manager_48.svg" alt="" width="36" height="36" loading="lazy">
+        <span class="flow-node__name">3 · Target</span>
+        <span class="flow-node__sub">tag TrustCA=intranet</span>
+      </div>
+      <span class="flow-hop">&rarr;</span>
+      <div class="flow-node">
+        <img src="{{ icons }}/resource/management/Res_AWS-Systems-Manager_State-Manager_48.svg" alt="" width="36" height="36" loading="lazy">
+        <span class="flow-node__name">4 · Distribute</span>
+        <span class="flow-node__sub">SSM desired state</span>
+      </div>
+      <span class="flow-hop">&rarr;</span>
+      <div class="flow-node flow-node--ok">
+        <img src="{{ icons }}/resource/compute/Res_Amazon-EC2_Instance_48.svg" alt="" width="36" height="36" loading="lazy">
+        <span class="flow-node__name">5 · Verify</span>
+        <span class="flow-node__sub">curl / openssl, no --cacert</span>
+      </div>
+      <span class="flow-hop">&rarr;</span>
+      <div class="flow-node">
+        <img src="{{ icons }}/service/security/Arch_AWS-Private-Certificate-Authority_64.svg" alt="" width="36" height="36" loading="lazy">
+        <span class="flow-node__name">6 · Rotate</span>
+        <span class="flow-node__sub">overlap old + new CA</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="flow-aside">
+    The lab wires this end to end: <code>s3://…/trust/ca.pem</code> plus
+    <code>install-ca-trust.sh</code>. The SSM document copies the script, then runs it
+    with the CA S3 URI; the association targets tag <code>TrustCA=intranet</code>.
+  </p>
+
+  <figcaption id="trust-pipe-caption">
+    Six ordered steps from issuing the anchor to rotating it — State Manager keeps
+    the install as desired state, not a one-shot push.
+  </figcaption>
+</figure>

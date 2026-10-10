@@ -1,0 +1,21 @@
+---
+description: Block AWS mutations unless the operator opts in
+alwaysApply: true
+---
+
+# Lab safety
+
+Do **not** run mutating AWS CLI or `terraform apply` / `destroy` while authoring.
+Author commands in docs/scripts; the human runs the lab.
+
+Opt-in (operator only):
+
+```bash
+export ACM_LAB_ALLOW_AWS=1
+```
+
+Read-only `aws` (`describe` / `list` / `get` / `sts get-*`) and `terraform fmt` /
+`validate` / `plan` are fine. Never commit private keys, production CA PEMs, or
+`.tfstate`. Destroy Private CA promptly — monthly charge while it exists.
+
+Details: `.kiro/steering/lab-safety.md`, hook `.kiro/hooks/guard-aws-mutations.py`.

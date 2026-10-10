@@ -1,0 +1,124 @@
+<nav aria-label="Auxiliary" class="aux-nav">
+  <ul class="aux-nav-list">
+    <li class="aux-nav-list-item">
+      <button
+        type="button"
+        class="site-button conduit-theme-toggle"
+        id="conduit-theme-toggle"
+        aria-label="Toggle dark mode"
+        title="Toggle dark mode"
+      >
+        <span class="conduit-theme-toggle__chip" aria-hidden="true">
+          <svg class="icon-moon" viewBox="0 0 24 24">
+            <path d="M21 14.3A9 9 0 0 1 9.7 3a7.5 7.5 0 1 0 11.3 11.3z"/>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24">
+            <path d="M12 4.5V2m0 20v-2.5M4.5 12H2m20 0h-2.5M6.05 6.05 4.22 4.22m15.56 15.56-1.83-1.83M17.95 6.05l1.83-1.83M4.22 19.78l1.83-1.83M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </span>
+      </button>
+    </li>
+    {% for link in site.aux_links %}
+      <li class="aux-nav-list-item">
+        <a href="{{ link.last }}" class="site-button"
+          {% if site.aux_links_new_tab %}
+          target="_blank" rel="noopener noreferrer"
+          {% endif %}
+        >
+          {{ link.first }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</nav>
+
+<script>
+(function () {
+  var LIGHT = 'conduit';
+  var DARK = 'conduit-dark';
+  var KEY = 'plc-docs-theme';
+
+  function normalize(theme) {
+    return theme === DARK ? DARK : LIGHT;
+  }
+
+  function systemTheme() {
+    try {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : LIGHT;
+    } catch (e) {
+      return LIGHT;
+    }
+  }
+
+  function storedTheme() {
+    try {
+      var stored = localStorage.getItem(KEY);
+      if (stored === LIGHT || stored === DARK) return stored;
+    } catch (e) {}
+    return null;
+  }
+
+  function resolve() {
+    return storedTheme() || systemTheme();
+  }
+
+  function syncToggle(theme) {
+    var btn = document.getElementById('conduit-theme-toggle');
+    if (!btn) return;
+    btn.setAttribute('aria-label', theme === DARK ? 'Switch to light mode' : 'Switch to dark mode');
+    btn.setAttribute('title', theme === DARK ? 'Switch to light mode' : 'Switch to dark mode');
+  }
+
+  function themeStylesheet() {
+    return (
+      document.querySelector('link[rel="stylesheet"][href*="just-the-docs-conduit"]') ||
+      document.querySelector('link[rel="stylesheet"]')
+    );
+  }
+
+  function apply(theme, persist) {
+    theme = normalize(theme);
+    var link = themeStylesheet();
+    if (link) {
+      var base = '{{ "/assets/css/just-the-docs-" | relative_url }}';
+      link.setAttribute('href', base + theme + '.css');
+    } else if (typeof jtd !== 'undefined' && jtd.setTheme) {
+      jtd.setTheme(theme);
+    }
+    if (persist) {
+      try { localStorage.setItem(KEY, theme); } catch (e) {}
+    }
+    syncToggle(theme);
+  }
+
+  function ready(fn) {
+    if (typeof jtd !== 'undefined' && jtd.onReady) {
+      jtd.onReady(fn);
+    } else if (document.readyState !== 'loading') {
+      fn();
+    } else {
+      document.addEventListener('DOMContentLoaded', fn);
+    }
+  }
+
+  ready(function () {
+    // head.html already set the correct stylesheet — do not setTheme again (avoids FOUC)
+    syncToggle(resolve());
+    var btn = document.getElementById('conduit-theme-toggle');
+    if (btn) {
+      btn.addEventListener('click', function () {
+        apply(resolve() === DARK ? LIGHT : DARK, true);
+      });
+    }
+    try {
+      var mq = window.matchMedia('(prefers-color-scheme: dark)');
+      var onChange = function () {
+        if (storedTheme()) return;
+        apply(systemTheme(), false);
+      };
+      if (mq.addEventListener) mq.addEventListener('change', onChange);
+      else if (mq.addListener) mq.addListener(onChange);
+    } catch (e) {}
+  });
+})();
+</script>

@@ -1,0 +1,17 @@
+# Terraform (all stages)
+terraform/**/.terraform/
+terraform/**/*.tfstate
+terraform/**/*.tfstate.*
+terraform/**/*.tfstate.backup
+terraform/**/crash.log
+terraform/**/override.tf
+terraform/**/*_override.tf
+terraform/terraform.tfvars
+terraform/**/terraform.tfvars
+
+# Secrets / local
+*.pem
+.DS_Store
+docs/_site/
+docs/vendor/
+docs/.bundle/
