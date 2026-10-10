@@ -8,7 +8,7 @@ description: >-
 ---
 
 <div class="conduit-hero">
-  <p class="conduit-kicker">jajera · acm-public-vs-private-ca-walkthrough</p>
+  <p class="conduit-kicker">johna.kiwi · acm-public-vs-private-ca-walkthrough</p>
   <h1>ACM and Private CA</h1>
   <p class="conduit-lede">
     Public TLS and private TLS are different jobs. This lab runs both in one VPC:

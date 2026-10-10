@@ -10,7 +10,7 @@
   <rect width="1200" height="630" fill="url(#bg)"/>
 
   <!-- wordmark -->
-  <text x="60" y="96" font-family="Verdana, 'DejaVu Sans', sans-serif" font-size="52" font-weight="700" fill="#0f766e" letter-spacing="-1">jajera</text>
+  <text x="60" y="96" font-family="Verdana, 'DejaVu Sans', sans-serif" font-size="42" font-weight="700" fill="#0f766e" letter-spacing="-1">johna.kiwi</text>
 
   <!-- title -->
   <text x="58" y="236" font-family="Verdana, 'DejaVu Sans', sans-serif" font-size="92" font-weight="700" fill="#0b1c24" letter-spacing="-3">ACM &amp; AWS</text>
